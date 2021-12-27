@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket.IO chat</title>
+
+  </head>
+  <body class="bg-black">
+    <div class="h-screen w-screen flex flex-col px-4">
+
+      <header class="h-20 flex flex-row items-center justify-center">
+        <h1 class="text-white text-4xl m-2">Graouh</h1>
+        <form id="form_pseudo" class="w-full p-4 bottom-0 flex flex-row" action="">
+          <input id="input_pseudo" class="px-4 w-48 rounded-lg h-14 mr-4" autocomplete="off" placeholder="Pseudo"/>
+          <button class="w-12 rounded-xl bg-white">Ok</button>
+        </form>
+      </header>
+
+      <ul id="messages" class="text-blue-50 h-full overflow-auto border-2 border-white rounded target:text-blue-500 space-y-2 divide-y p-1">
+      </ul>
+      
+      <form id="form" class="h-20 p-4 w-full bottom-0 flex flex-row items-center justify-center" action="">
+        <input id="input_message" class="px-4 w-full rounded-lg h-14 mr-4" autocomplete="off" />
+        <button class="w-12 rounded-xl h-full bg-white sm:hidden">
+          <!-- Send message svg -->
+          <svg class="w-12 h-12 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" clip-rule="evenodd"/>
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+          </svg>
+        </button>
+        <button class="w-48 rounded-xl h-full bg-white hidden sm:block">Send</button>
+      </form>
+
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
