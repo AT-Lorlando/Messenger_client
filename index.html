@@ -14,14 +14,24 @@
         <h1 class="text-white text-4xl m-2">Graouh</h1>
       </header>
 
-      <div id="container" class="h-full w-full flex flex-row border-2 border-white rounded text-white">
-        <ul id="messages" class="text-blue-50 w-full h-full overflow-auto target:text-blue-500 space-y-2 divide-y p-1 border-r-2 border-blue-200">
+      <div id="container" class="h-full w-full flex-row border-2 border-white rounded text-white hidden sm:flex">
+        <ul id="messages" class="text-blue-50 w-full h-full overflow-auto target:text-blue-500 space-y-2 divide-y p-1 border-r-2 border-blue-200 ">
         </ul>
         <div class="w-48 h-full py-1 px-2">
           <h1>Users list:</h1>
           <ul id="users">
           </ul>
         </div>
+      </div>
+
+      <div id="mobileContainer" class="h-full w-full flex flex-col border-2 border-white rounded text-white sm:hidden">
+        <div class="w-full h-auto py-1 px-2 flex flex-row">
+          <h1 class="w-auto mr-2">Users list:</h1>
+          <ul id="mobile_users" class="flex flex-row gap-2">
+          </ul>
+        </div>
+        <ul id="mobile_messages" class="text-blue-50 w-full h-full overflow-auto target:text-blue-500 space-y-2 divide-y p-1 border-t-2 border-blue-200">
+        </ul>
       </div>
       
       <form id="form" class="h-20 p-4 w-full bottom-0 flex flex-row items-center justify-center" action="">

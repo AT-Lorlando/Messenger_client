@@ -5,13 +5,35 @@ console.log("https://github.com/AT-Lorlando")
 console.log("https://altab.tech")
 
 import { io } from "socket.io-client";
+// Check is device is mobile
+function isMobile() {
+    if (navigator.userAgent.match(/Android/i)
+        // || navigator.userAgent.match(/webOS/i)
+        || navigator.userAgent.match(/iPhone/i)
+        || navigator.userAgent.match(/iPad/i)
+        || navigator.userAgent.match(/iPod/i)
+        || navigator.userAgent.match(/BlackBerry/i)
+        || navigator.userAgent.match(/Windows Phone/i)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
-var messages = document.getElementById('messages');
-var form = document.getElementById('form');
-var input = document.getElementById('input_message');
-var form_pseudo = document.getElementById('form_pseudo');
-var input_pseudo = document.getElementById('input_pseudo');
-var modal = document.getElementById('modal');
+let mobile = isMobile();
+
+
+let messages = mobile ? document.getElementById('mobile_messages') : document.getElementById('messages');
+let form = document.getElementById('form');
+let input = document.getElementById('input_message');
+let form_pseudo = document.getElementById('form_pseudo');
+let input_pseudo = document.getElementById('input_pseudo');
+let modal = document.getElementById('modal');
+let users = mobile ? document.getElementById('mobile_users') : document.getElementById('users');
+
+
+
 
 const COLORS = [
     'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'indigo', 'teal', 'gray', 'brown', 'black', 'white'
@@ -86,17 +108,17 @@ function send(msg) {
 function new_message(msg) {
     var item = document.createElement('li');
     item.classList.add('message');
-    if (msg.user == me) {
-        item.innerHTML = `<li class="w-full text-blue-500"">
+    if (msg.user == System) {
+        item.innerHTML = `<li class="w-full text-red-500"">
         <span>${msg.user.name}</span>
         <span>${new Date().toLocaleTimeString()}:</span>
         ${msg.value}
         </li>`;
     } else {
         item.innerHTML = `<li class="w-full text-${msg.user.color}-500">
-        <span>${msg.user.name}</span>
-        <span>${new Date().toLocaleTimeString()}:</span>
-        ${msg.value}
+        <span>${new Date().toLocaleTimeString()}</span>
+        <span>${msg.user.name}:</span>
+        <span class="text-white">${msg.value}</span>
         </li>`;
     }
 
@@ -114,12 +136,9 @@ function new_user(u) {
 }
 
 function draw_users() {
-    let users = document.getElementById('users');
-    console.log('User:',USERS)
     users.innerHTML = '';
     USERS.forEach(u => {
         let item = document.createElement('li');
-        item.classList.add('user');
         item.innerHTML = `<span class="text-${u.color}-500">${u.name}</span>`;
         users.appendChild(item);
     });
