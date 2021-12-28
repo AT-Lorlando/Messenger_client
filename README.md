@@ -1,4 +1,4 @@
-# Vite-Three-Sandbox - by AT-Lorlando
+# Graouh-client - by AT-Lorlando
 
 ## Build Setup
 
@@ -16,5 +16,3 @@ $ npm run start
 # generate static project
 $ npm run generate
 ```
-
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
