@@ -7,19 +7,22 @@
     <title>Socket.IO chat</title>
 
   </head>
-  <body class="bg-black">
+  <body class="bg-black flex flex-col items-center">
     <div class="h-screen w-screen flex flex-col px-4">
 
       <header class="h-20 flex flex-row items-center justify-center">
         <h1 class="text-white text-4xl m-2">Graouh</h1>
-        <form id="form_pseudo" class="w-full p-4 bottom-0 flex flex-row" action="">
-          <input id="input_pseudo" class="px-4 w-48 rounded-lg h-14 mr-4" autocomplete="off" placeholder="Pseudo"/>
-          <button class="w-12 rounded-xl bg-white">Ok</button>
-        </form>
       </header>
 
-      <ul id="messages" class="text-blue-50 h-full overflow-auto border-2 border-white rounded target:text-blue-500 space-y-2 divide-y p-1">
-      </ul>
+      <div id="container" class="h-full w-full flex flex-row border-2 border-white rounded text-white">
+        <ul id="messages" class="text-blue-50 w-full h-full overflow-auto target:text-blue-500 space-y-2 divide-y p-1 border-r-2 border-blue-200">
+        </ul>
+        <div class="w-48 h-full py-1 px-2">
+          <h1>Users list:</h1>
+          <ul id="users">
+          </ul>
+        </div>
+      </div>
       
       <form id="form" class="h-20 p-4 w-full bottom-0 flex flex-row items-center justify-center" action="">
         <input id="input_message" class="px-4 w-full rounded-lg h-14 mr-4" autocomplete="off" />
@@ -34,6 +37,18 @@
       </form>
 
     </div>
+
+    <div id="modal" class="absolute inset-0 flex flex-col items-center w-full h-full bg-blue-50 bg-opacity-40 z-20">
+      <form id="form_pseudo" class="absolute top-64 w-72 h-auto gap-4 flex flex-col border-2 justify-between border-white rounded-xl bg-black text-white px-4 py-2" action="">
+        <h1 class="w-full">Choisissez un pseudo</h1>
+        <input id="input_pseudo" class="px-4 w-full rounded-lg h-14 mr-4 text-black" autocomplete="off" placeholder="Pseudo"/>
+        <div class="w-full flex flex-row-reverse">
+          <button class="w-12 h-12 text-black rounded-xl bg-white">Ok</button>
+        </div>
+      </form>
+    </div>
+    
     <script type="module" src="/main.js"></script>
   </body>
+
 </html>
