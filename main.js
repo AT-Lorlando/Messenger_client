@@ -75,7 +75,7 @@ form_pseudo.addEventListener('submit', function(e) {
     e.preventDefault();
     if (input_pseudo.value) {
         console.log('New pseudo:' + input_pseudo.value)
-        me = new user(input_pseudo.value);
+        me = input_pseudo.value;
         // Hide the modal
         init();
         draw_users();
@@ -99,6 +99,7 @@ function init() {
     socket.on("disconnect", on_disconnect);
 
     socket.on('chat message', on_msg);
+    socket.on('private message', on_msg);
 }
 
 function send(msg) {
@@ -125,22 +126,14 @@ function new_message(msg) {
     messages.appendChild(item);
 }
 
-function new_user(u) {
-    new user(u);
-    new_message({
-        cmd: "system",
-        value: `${u.name} joined to the server`,
-        user: System
-    });
-    draw_users();
-}
-
 function draw_users() {
     users.innerHTML = '';
     USERS.forEach(u => {
-        let item = document.createElement('li');
-        item.innerHTML = `<span class="text-${u.color}-500">${u.name}</span>`;
-        users.appendChild(item);
+        if ( u.name != "System" ) {
+            let item = document.createElement('li');
+            item.innerHTML = `<span class="text-${u.color}-500">${u.name}</span>`;
+            users.appendChild(item);
+        }
     });
 }
 
@@ -156,13 +149,19 @@ function on_connect() {
         user: System
     });
 
-    let msg = new message("newUser", me, System);
+    let msg = new message("newUser", {name: me}, System);
     send(msg);
 }
 
 function on_disconnect() {
     console.log("Disconnected from the server");
     console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+
+    USERS.forEach(u => {
+        if (u.name != "System") {
+            USERS.pop(u);
+        }
+    })
 
     // System message
     new_message({
@@ -173,9 +172,10 @@ function on_disconnect() {
 }
 
 function on_msg(msg) {
-    console.log('Message received:' + msg)
+    console.log('Message received:')
+    console.log(msg);
 
-    if (msg.user == System) {
+    if (msg.user.name == "System") {
         on_sys_msg(msg);
     }
     else if (msg.cmd == 'newMessage') {
@@ -186,9 +186,16 @@ function on_msg(msg) {
 }
 
 function on_sys_msg(msg) {
-    console.log('System message received:' + msg)
+    console.log('System message received:')
+    console.log(msg);
 
     if (msg.cmd == 'newUser') {
-        new_user(msg.user);
+        new user(msg.value.name, msg.value.color);
+        draw_users();
+    }
+    else if (msg.cmd == 'userDeco') {
+        let u = USERS.find(u => u.name == msg.value.name);
+        USERS.pop(u);
+        draw_users();
     }
 }
