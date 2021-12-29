@@ -84,8 +84,7 @@ form_pseudo.addEventListener('submit', function(e) {
 });
 
 function init() {
-    socket = io("176.128.9.92:8008", {secure: true,
-    rejectUnauthorized: false});
+    socket = io("http://176.128.9.92:8008");
     
     if(!me) {
         modal.style.display = "block";
