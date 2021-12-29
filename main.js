@@ -85,7 +85,21 @@ form_pseudo.addEventListener('submit', function(e) {
 
 function init() {
     socket = io("http://176.128.9.92:8008");
-    
+    console.log(socket);
+
+    if(socket.disconnected) {
+        console.log("Socket error");
+        // System message
+        new_message({
+            cmd: "system",
+            value: "Connection error, retrying in 10.",
+            user: System
+        });
+
+        setTimeout(init, 10000);
+    }
+
+
     if(!me) {
         modal.style.display = "block";
     }
