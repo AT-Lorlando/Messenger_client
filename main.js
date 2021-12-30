@@ -67,7 +67,7 @@ let System = new user("System", 'red');
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     if (input.value) {
-        let msg = new message('newMessage', input.value, me);
+        let msg = new message('newMessage', input.value, { name: me });
         send(msg)
         input.value = '';
         // new_message(msg);
@@ -129,9 +129,10 @@ function send(msg) {
 }
 
 function new_message(msg) {
+    console.log(msg)
     var item = document.createElement('li');
     item.classList.add('message');
-    if (msg.user == System) {
+    if (msg.user.name == 'System') {
         item.innerHTML = `<li class="w-full text-red-500"">
         <span>${msg.user.name}</span>
         <span>${msg.time}:</span>
