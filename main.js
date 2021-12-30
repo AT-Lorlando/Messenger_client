@@ -5,6 +5,7 @@ console.log("https://github.com/AT-Lorlando")
 console.log("https://altab.tech")
 
 import { io } from "socket.io-client";
+
 // Check is device is mobile
 function isMobile() {
     if (navigator.userAgent.match(/Android/i)
@@ -86,7 +87,15 @@ form_pseudo.addEventListener('submit', function(e) {
 });
 
 function init() {
-    socket = io("176.128.9.92:8008");
+    socket = io("https://sekira.altab.tech", {
+        transports: ['websocket'],
+        rejectUnauthorized: false,
+        secure: true,
+        withCredentials: true,
+        extraHeaders: {
+            "my-custom-header": "abcd"
+        }
+    });
     console.log(socket);
 
     if (false) {
