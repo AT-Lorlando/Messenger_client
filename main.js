@@ -1,9 +1,4 @@
 import './style.css'
-
-console.log("%c Template made by AT-Lorlando", 'font-size:20px; text-transform: uppercase; color: white; text-shadow: 1px 1px red, 2px 2px orange, 3px 3px yellow, 4px 4px green, 5px 5px blue, 6px 6px purple')
-console.log("https://github.com/AT-Lorlando")
-console.log("https://altab.tech")
-
 import { io } from "socket.io-client";
 
 // Check is device is mobile
@@ -24,8 +19,7 @@ function isMobile() {
 }
 
 let mobile = isMobile();
-
-
+// Html elements
 let messages = mobile ? document.getElementById('mobile_messages') : document.getElementById('messages');
 let form = document.getElementById('form');
 let input = document.getElementById('input_message');
@@ -34,15 +28,11 @@ let input_pseudo = document.getElementById('input_pseudo');
 let modal = document.getElementById('modal');
 let users = mobile ? document.getElementById('mobile_users') : document.getElementById('users');
 
-
-
-
-const COLORS = [
-    'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'indigo', 'teal', 'gray', 'brown', 'black', 'white'
-]
-const USERS = [];
+// Some variables
 let socket;
-let me;
+const USERS = [];
+const me = { name: "Unknown" };
+const System = { name: "System", color: "red" };
 
 class message {
     constructor(cmd, value, user, t = undefined) {
@@ -52,23 +42,17 @@ class message {
         this.id = Math.random().toString(36).substring(7);
         this.time = t ? t : new Date().toLocaleTimeString()
     }
-}
 
-class user {
-    constructor(name, color) {
-        this.name = name;
-        USERS.push(this);
-        this.color = color ? color : COLORS[USERS.indexOf(this) - 1];
+    send() {
+        socket.emit('chat message', this);
     }
 }
 
-let System = new user("System", 'red');
 
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     if (input.value) {
-        let msg = new message('newMessage', input.value, { name: me });
-        send(msg)
+        new message('newMessage', input.value, me).send();
         input.value = '';
         // new_message(msg);
     }
@@ -76,16 +60,25 @@ form.addEventListener('submit', function(e) {
 
 form_pseudo.addEventListener('submit', function(e) {
     e.preventDefault();
-    if (input_pseudo.value) {
+    let name = input_pseudo.value;
+    if (name &&
+        name.length < 20 &&
+        name.length > 2 &&
+        name.match(/^[a-zA-Z0-9]+$/) &&
+        name != "System") {
         console.log('New pseudo:' + input_pseudo.value)
-        me = input_pseudo.value;
+        me.name = input_pseudo.value;
         // Hide the modal
         init();
         draw_users();
         modal.style.display = "none";
+    } else {
+        modal_info("Invalid pseudo");
     }
 });
 
+
+// Init the socket
 function init() {
     socket = io("https://sekira.altab.tech", {
         transports: ['websocket'],
@@ -116,6 +109,7 @@ function init() {
         modal.style.display = "block";
     }
 
+    // Calling handlers
     socket.on("connect", on_connect);
 
     socket.on("disconnect", on_disconnect);
@@ -124,58 +118,24 @@ function init() {
     socket.on('private message', on_msg);
 }
 
-function send(msg) {
-    socket.emit('chat message', msg);
-}
 
-function new_message(msg) {
-    console.log(msg)
-    var item = document.createElement('li');
-    item.classList.add('message');
-    if (msg.user.name == 'System') {
-        item.innerHTML = `<li class="w-full text-red-500"">
-        <span>${msg.user.name}</span>
-        <span>${msg.time}:</span>
-        ${msg.value}
-        </li>`;
-    } else {
-        item.innerHTML = `<li class="w-full text-${msg.user.color}-500">
-        <span>${msg.time}</span>
-        <span>${msg.user.name}:</span>
-        <span class="text-white">${msg.value}</span>
-        </li>`;
-    }
+/* Socket handler functions*/
 
-    messages.appendChild(item);
-}
-
-function draw_users() {
-    users.innerHTML = '';
-    USERS.forEach(u => {
-        if (u.name != "System") {
-            let item = document.createElement('li');
-            item.innerHTML = `<span class="text-${u.color}-500">${u.name}</span>`;
-            users.appendChild(item);
-        }
-    });
-}
-
+// When the user is connected
 function on_connect() {
     console.log("Connected to the server");
     console.log(socket.id); // x8WIv7-mJelg7on_ALbx
     console.log(socket.connected); // true
 
     // System message
-    new_message({
-        cmd: "system",
-        value: "Connected to the server",
-        user: System
-    });
+    sys_info("Connected to the server")
 
-    let msg = new message("newUser", { name: me }, System);
-    send(msg);
+
+    new message("newUser", me, System).send();
+    // send(msg);
 }
 
+// When the user is disconnected
 function on_disconnect() {
     console.log("Disconnected from the server");
     console.log(socket.id); // x8WIv7-mJelg7on_ALbx
@@ -187,13 +147,10 @@ function on_disconnect() {
     })
 
     // System message
-    new_message({
-        cmd: "system",
-        value: "Disconnected from the server",
-        user: System
-    });
+    sys_info("Disconnected from the server")
 }
 
+// When the socket receives a message
 function on_msg(msg) {
     console.log('Message received:')
     console.log(msg);
@@ -207,18 +164,68 @@ function on_msg(msg) {
     window.scrollTo(0, document.body.scrollHeight);
 }
 
+// And if it is a system message
 function on_sys_msg(msg) {
+
     if (msg.cmd == 'newUser') {
-        new user(msg.value.name, msg.value.color);
+        // new user(msg.value.name, msg.value.color);
+        USERS.push({ name: msg.value.name, color: msg.value.color });
+        sys_info(`${msg.value.name} joined the chat`);
         draw_users();
+
     } else if (msg.cmd == 'userDeco') {
         let u = USERS.find(u => u.name == msg.value.name);
-        USERS.pop(u);
-        draw_users();
-    } else if (msg.cmd == 'messageHistory') {
-        msg.value.forEach(m => {
-            let s_msg = new message(m.cmd, m.value, m.user, m.time);
-            new_message(s_msg);
-        })
+        if (u) {
+            sys_info(`${u.name} has left the chat`)
+            USERS.pop(u);
+            draw_users();
+        }
     }
+}
+
+/* Html editor functions */
+
+// Add the message on html page
+function new_message(msg) {
+    var item = document.createElement('li');
+    item.classList.add('message');
+    if (msg.user.name == 'System') {
+        item.innerHTML = `<li class="w-full text-red-500"">
+        <span>${msg.time}:</span>
+        <span>${msg.user.name}</span>
+        ${msg.value}
+        </li>`;
+    } else {
+        item.innerHTML = `<li class="w-full text-${msg.user.color}-500">
+        <span>${msg.time}</span>
+        <span>${msg.user.name}:</span>
+        <span class="text-white">${msg.value}</span>
+        </li>`;
+    }
+
+    messages.appendChild(item);
+}
+
+// Draw the users list on html page
+function draw_users() {
+    users.innerHTML = '';
+    USERS.forEach(u => {
+        if (u.name != "System") {
+            let item = document.createElement('li');
+            item.innerHTML = `<span class="text-${u.color}-500">${u.name}</span>`;
+            users.appendChild(item);
+        }
+    });
+}
+
+/* Some useful functions */
+
+function sys_info(info) {
+    new message("system", info, System);
+    new_message(new message("system", info, System));
+}
+
+function modal_info(info) {
+    // modal_info_text.innerHTML = info;
+    // modal_info_modal.style.display = "block";
 }
