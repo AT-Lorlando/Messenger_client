@@ -51,10 +51,17 @@ class message {
 
 form.addEventListener('submit', function(e) {
     e.preventDefault();
-    if (input.value) {
-        new message('newMessage', input.value, me).send();
+    let t = input.value;
+    if (t) {
+        if (t.startsWith("/")) {
+            new message(t.split(" ")[0].substring(1), [
+                t.split(" ")[1],
+                t.split(" ").slice(2)
+            ], System).send();
+        } else {
+            new message('newMessage', t, me).send();
+        }
         input.value = '';
-        // new_message(msg);
     }
 });
 
@@ -126,6 +133,7 @@ function on_connect() {
     console.log("Connected to the server");
     console.log(socket.id); // x8WIv7-mJelg7on_ALbx
     console.log(socket.connected); // true
+    clear_messages();
 
     // System message
     sys_info("Connected to the server")
@@ -157,7 +165,8 @@ function on_msg(msg) {
 
     if (msg.user.name == "System") {
         on_sys_msg(msg);
-    } else if (msg.cmd == 'newMessage') {
+    }
+    if (msg.cmd == 'newMessage') {
         new_message(msg);
     }
 
@@ -204,6 +213,11 @@ function new_message(msg) {
     }
 
     messages.appendChild(item);
+}
+
+// Clear the messages
+function clear_messages() {
+    messages.innerHTML = '';
 }
 
 // Draw the users list on html page
