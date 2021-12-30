@@ -9,11 +9,12 @@ import { io } from "socket.io-client";
 function isMobile() {
     if (navigator.userAgent.match(/Android/i)
         // || navigator.userAgent.match(/webOS/i)
-        || navigator.userAgent.match(/iPhone/i)
-        || navigator.userAgent.match(/iPad/i)
-        || navigator.userAgent.match(/iPod/i)
-        || navigator.userAgent.match(/BlackBerry/i)
-        || navigator.userAgent.match(/Windows Phone/i)
+        ||
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPad/i) ||
+        navigator.userAgent.match(/iPod/i) ||
+        navigator.userAgent.match(/BlackBerry/i) ||
+        navigator.userAgent.match(/Windows Phone/i)
     ) {
         return true;
     } else {
@@ -43,11 +44,12 @@ let socket;
 let me;
 
 class message {
-    constructor(cmd, value, user) {
+    constructor(cmd, value, user, t = undefined) {
         this.cmd = cmd;
         this.value = value;
         this.user = user;
         this.id = Math.random().toString(36).substring(7);
+        this.time = t ? t : new Date().toLocaleTimeString()
     }
 }
 
@@ -55,7 +57,7 @@ class user {
     constructor(name, color) {
         this.name = name;
         USERS.push(this);
-        this.color = color ? color : COLORS[USERS.indexOf(this)-1] ;
+        this.color = color ? color : COLORS[USERS.indexOf(this) - 1];
     }
 }
 
@@ -84,10 +86,10 @@ form_pseudo.addEventListener('submit', function(e) {
 });
 
 function init() {
-    socket = io("http://176.128.9.92:8008");
+    socket = io("176.128.9.92:8008");
     console.log(socket);
 
-    if(socket.disconnected) {
+    if (false) {
         console.log("Socket error");
         // System message
         new_message({
@@ -97,19 +99,16 @@ function init() {
         });
 
         setTimeout(init, 10000);
+        return
     }
 
 
-    if(!me) {
+    if (!me) {
         modal.style.display = "block";
     }
 
-    if(!socket.connected) {
-        modal.style.display = "block";
-    }
-       
-    socket.on("connect", on_connect);     
-    
+    socket.on("connect", on_connect);
+
     socket.on("disconnect", on_disconnect);
 
     socket.on('chat message', on_msg);
@@ -126,12 +125,12 @@ function new_message(msg) {
     if (msg.user == System) {
         item.innerHTML = `<li class="w-full text-red-500"">
         <span>${msg.user.name}</span>
-        <span>${new Date().toLocaleTimeString()}:</span>
+        <span>${msg.time}:</span>
         ${msg.value}
         </li>`;
     } else {
         item.innerHTML = `<li class="w-full text-${msg.user.color}-500">
-        <span>${new Date().toLocaleTimeString()}</span>
+        <span>${msg.time}</span>
         <span>${msg.user.name}:</span>
         <span class="text-white">${msg.value}</span>
         </li>`;
@@ -143,7 +142,7 @@ function new_message(msg) {
 function draw_users() {
     users.innerHTML = '';
     USERS.forEach(u => {
-        if ( u.name != "System" ) {
+        if (u.name != "System") {
             let item = document.createElement('li');
             item.innerHTML = `<span class="text-${u.color}-500">${u.name}</span>`;
             users.appendChild(item);
@@ -155,7 +154,7 @@ function on_connect() {
     console.log("Connected to the server");
     console.log(socket.id); // x8WIv7-mJelg7on_ALbx
     console.log(socket.connected); // true
-        
+
     // System message
     new_message({
         cmd: "system",
@@ -163,7 +162,7 @@ function on_connect() {
         user: System
     });
 
-    let msg = new message("newUser", {name: me}, System);
+    let msg = new message("newUser", { name: me }, System);
     send(msg);
 }
 
@@ -191,8 +190,7 @@ function on_msg(msg) {
 
     if (msg.user.name == "System") {
         on_sys_msg(msg);
-    }
-    else if (msg.cmd == 'newMessage') {
+    } else if (msg.cmd == 'newMessage') {
         new_message(msg);
     }
 
@@ -200,16 +198,17 @@ function on_msg(msg) {
 }
 
 function on_sys_msg(msg) {
-    console.log('System message received:')
-    console.log(msg);
-
     if (msg.cmd == 'newUser') {
         new user(msg.value.name, msg.value.color);
         draw_users();
-    }
-    else if (msg.cmd == 'userDeco') {
+    } else if (msg.cmd == 'userDeco') {
         let u = USERS.find(u => u.name == msg.value.name);
         USERS.pop(u);
         draw_users();
+    } else if (msg.cmd == 'messageHistory') {
+        msg.value.forEach(m => {
+            let s_msg = new message(m.cmd, m.value, m.user, m.time);
+            new_message(s_msg);
+        })
     }
 }
