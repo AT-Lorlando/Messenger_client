@@ -199,17 +199,21 @@ function new_message(msg) {
     var item = document.createElement('li');
     item.classList.add('message');
     if (msg.user.name == 'System') {
-        item.innerHTML = `<li class="w-full text-red-500"">
+        item.style.width = '100%';
+        item.style.color = 'red';
+        item.innerHTML = `<span>
         <span>${msg.time}:</span>
         <span>${msg.user.name}</span>
         ${msg.value}
-        </li>`;
+        </span>`;
     } else {
-        item.innerHTML = `<li class="w-full text-${msg.user.color}-500">
+        item.style.width = '100%';
+        item.style.color = msg.user.color;
+        item.innerHTML = `<span>
         <span>${msg.time}</span>
         <span>${msg.user.name}:</span>
         <span class="text-white">${msg.value}</span>
-        </li>`;
+        </span>`;
     }
 
     messages.appendChild(item);
@@ -226,7 +230,8 @@ function draw_users() {
     USERS.forEach(u => {
         if (u.name != "System") {
             let item = document.createElement('li');
-            item.innerHTML = `<span class="text-${u.color}-500">${u.name}</span>`;
+            item.style.color = u.color;
+            item.innerHTML = `<span>${u.name}</span>`;
             users.appendChild(item);
         }
     });
